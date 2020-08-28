@@ -9,6 +9,80 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
+const { listenerCount } = require("process");
+
+
+const types = ["intern","Engineer","Manager"]
+const same = [["What is their name?","name"],["What is their ID?", "id"],["What is their E-mail?","email"] ]
+const eq = [...same, ["What is their Github username?","github"]]
+const iq =[...same, ["What school did they attend?","school"]]
+const mq =[...same, ["What is their Office number?", "office"]]
+
+const eQuestions = eq.map((eprompt)=>{
+return {
+    message:eprompt[0],
+    name:eprompt[1],
+}
+})
+const iQuestions = iq.map((iprompt)=>{
+return {
+    message:iprompt[0],
+    name:iprompt[1],
+}
+})
+const mQuestions = mq.map((mprompt)=>{
+return {
+    message:mprompt[0],
+    name:mprompt[1],
+}
+})
+
+async function question(){
+    try {
+        const role  = await inquirer.prompt({
+        type: 'list',
+        message: "What type of Employee are you inputting? ",
+        choices: types,
+        name: "role"
+      });
+      if(role == "Engineer"){
+        await inquirer.prompt(eQuestions).then((answers)=>{
+            console.log(answers)
+        })
+
+      }else if(role == "intern"){
+        await inquirer.prompt(iQuestions).then((answers)=>{
+            console.log(answers)
+        })
+      }else{
+        await inquirer.prompt(mQuestions).then((answers)=>{
+            console.log(answers)
+        })
+        repeat();
+      }
+    } catch (err) {
+      console.log(err);
+    }
+
+}
+async function repeat(){
+    try{
+        const again  = await inquirer.prompt({
+            type: "confirm",
+            message: "is there another employee? ",
+            name: "repeat",
+        }) 
+        if (again[repeat]== 'Yes' ){
+            question();
+        }   
+    }
+    catch(err){
+        console.log(err);
+    }
+}
+
+
+question();
 
 
 // Write code to use inquirer to gather information about the development team members,
@@ -27,9 +101,3 @@ const render = require("./lib/htmlRenderer");
 // HINT: each employee type (manager, engineer, or intern) has slightly different
 // information; write your code to ask different questions via inquirer depending on
 // employee type.
-
-// HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
-// and Intern classes should all extend from a class named Employee; see the directions
-// for further information. Be sure to test out each class and verify it generates an
-// object with the correct structure and methods. This structure will be crucial in order
-// for the provided `render` function to work! ```

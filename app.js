@@ -72,7 +72,8 @@ async function repeat(){
             message: "is there another employee? ",
             name: "repeat",
         }) 
-        if (again[repeat]== 'Yes' ){
+        if (again.repeat== true ){
+            
             question();
         }   
     }

@@ -11,12 +11,12 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 const render = require("./lib/htmlRenderer");
 const { listenerCount } = require("process");
 
-
-const types = ["intern","Engineer","Manager"]
+let workers =[]
+const types = ["Intern","Engineer","Manager"]
 const same = [["What is their name?","name"],["What is their ID?", "id"],["What is their E-mail?","email"] ]
 const eq = [...same, ["What is their Github username?","github"]]
 const iq =[...same, ["What school did they attend?","school"]]
-const mq =[...same, ["What is their Office number?", "office"]]
+const mq =[...same, ["What is their Office number?", "officeNumber"]]
 
 const eQuestions = eq.map((eprompt)=>{
 return {
@@ -36,6 +36,8 @@ return {
     name:mprompt[1],
 }
 })
+let job;
+
 
 async function question(){
     try {
@@ -45,20 +47,31 @@ async function question(){
         choices: types,
         name: "role"
       });
-      if(role == "Engineer"){
+      job = role.role
+      console.log(job)
+      if(role.role == "Engineer"){
         await inquirer.prompt(eQuestions).then((answers)=>{
             console.log(answers)
+            const newEngineer = new Engineer(answers.name,answers.id,answers.email,answers.github)
+            workers.push(newEngineer)
+            repeat();
         })
 
-      }else if(role == "intern"){
+      }else if(role.role == "Intern"){
         await inquirer.prompt(iQuestions).then((answers)=>{
             console.log(answers)
+            const newIntern = new Intern(answers.name,answers.id,answers.email,answers.school)
+            workers.push(newIntern)
+            repeat();
         })
       }else{
         await inquirer.prompt(mQuestions).then((answers)=>{
             console.log(answers)
+            const newManager= new Manager(answers.name,answers.id,answers.email,answers.officeNumber)
+            workers.push(newManager)
+              repeat();
         })
-        repeat();
+      
       }
     } catch (err) {
       console.log(err);
@@ -75,6 +88,16 @@ async function repeat(){
         if (again.repeat== true ){
             
             question();
+        }else{
+            console.log(workers)
+    await fs.writeFile(outputPath,render(workers), err =>{
+        if(err){
+          throw err
+        }
+  console.log("Your page has been made")
+  
+      });
+
         }   
     }
     catch(err){
